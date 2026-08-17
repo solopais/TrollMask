@@ -17,6 +17,7 @@ TrollMask_FILES := \
 TrollMask_FRAMEWORKS := UIKit SwiftUI CoreLocation Foundation
 TrollMask_SWIFT_BRIDGING_HEADER := TrollMaskApp/TrollMask-Bridging-Header.h
 TrollMask_SWIFT_VERSION := 5.0
+TrollMask_INFORMATION_PROPERTY_LIST := TrollMaskApp/Info.plist
 TrollMask_CODESIGN_FLAGS := -Sentitlements.plist
 TrollMask_INSTALL_PATH := /Applications
 

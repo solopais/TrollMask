@@ -63,6 +63,30 @@ echo "==> fakeroot 替身: $(command -v fakeroot)"
 
 make clean || true
 make package FINALPACKAGE=1
-
-echo "==> 完成。deb 位于 ./packages/ 或 .theos/ 目录，用 TrollStore / Sileo / Filza 安装主 App 即可。"
+echo "==> deb 位于："
 ls -lh packages/*.deb .theos/*.deb 2>/dev/null || true
+
+echo "==> [4/4] 由 deb 生成 IPA（供 TrollStore 直接安装，格式等同 .tipa）"
+ROOT=$(pwd)
+DEB=$(ls -1 packages/*.deb 2>/dev/null | head -1)
+[ -z "$DEB" ] && DEB=$(ls -1 .theos/*.deb 2>/dev/null | head -1)
+if [ -z "$DEB" ]; then
+  echo "!!! 找不到 deb，无法生成 IPA"
+  exit 1
+fi
+rm -rf /tmp/ipa_extract && mkdir -p /tmp/ipa_extract
+dpkg-deb -x "$DEB" /tmp/ipa_extract
+APP_PATH=$(find /tmp/ipa_extract -type d -name 'TrollMask.app' | head -1)
+if [ -z "$APP_PATH" ]; then
+  echo "!!! deb 内未找到 TrollMask.app，deb 内容如下："
+  find /tmp/ipa_extract -maxdepth 4 2>/dev/null | head -40
+  exit 1
+fi
+if [ ! -f "$APP_PATH/TrollMaskDylib.dylib" ]; then
+  echo "!!! 警告：TrollMask.app 内未包含 TrollMaskDylib.dylib（注入将失效）"
+fi
+rm -rf /tmp/ipa_build && mkdir -p /tmp/ipa_build/Payload
+cp -r "$APP_PATH" /tmp/ipa_build/Payload/TrollMask.app
+( cd /tmp/ipa_build && zip -r "$ROOT/TrollMask.ipa" Payload >/dev/null )
+echo "==> 完成。产物："
+ls -lh "$ROOT/TrollMask.ipa" packages/*.deb .theos/*.deb 2>/dev/null || true

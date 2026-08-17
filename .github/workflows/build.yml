@@ -52,11 +52,13 @@ jobs:
           chmod +x build.sh
           ./build.sh
 
-      - name: Upload .deb artifact
+      - name: Upload artifacts (IPA + deb)
         uses: actions/upload-artifact@v4
         with:
-          name: TrollMask-deb
+          name: TrollMask-build
           path: |
+            *.ipa
+            *.tipa
             packages/*.deb
             .theos/*.deb
           if-no-files-found: error

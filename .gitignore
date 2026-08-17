@@ -1,0 +1,13 @@
+# Theos 编译产物
+.theos/
+obj/
+packages/
+*.deb
+*.dylib
+
+# 运行时临时文件
+/var/tmp/trollmask_config.plist
+
+# Xcode / macOS
+.DS_Store
+*.swp

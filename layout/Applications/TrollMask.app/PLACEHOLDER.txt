@@ -1,0 +1,4 @@
+# 占位文件：build.sh 会把编译好的 TrollMaskDylib.dylib 复制到本目录，
+# 最终随主 App 一起打包进 /Applications/TrollMask.app/，运行时再拷到 /var/tmp 注入目标进程。
+# 此文件在打包时会被忽略（见 build.sh 中的清理步骤）。
+PLACEHOLDER

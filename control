@@ -1,0 +1,9 @@
+Package: com.trollmask.app
+Name: TrollMask
+Version: 1.0.0
+Architecture: iphoneos-arm64
+Description: TrollStore 工具：对选定已安装 App 注入设备伪装 + 虚拟定位
+Maintainer: you <you@example.com>
+Author: you
+Section: Utilities
+Depends: firmware (>= 14.0)

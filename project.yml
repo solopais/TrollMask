@@ -1,0 +1,40 @@
+# xcodegen 规格：从简单 YAML 生成 TrollMask.xcodeproj
+# 用法（CI 中）：brew install xcodegen && xcodegen generate
+name: TrollMask
+options:
+  deploymentTarget:
+    iOS: "15.0"
+  createIntermediateGroups: true
+  bundleIdPrefix: com.trollmask
+settings:
+  base:
+    SWIFT_VERSION: "5.0"
+    ARCHS: arm64
+    VALID_ARCHS: arm64
+    ONLY_ACTIVE_ARCH: "NO"
+    ENABLE_BITCODE: "NO"
+    CODE_SIGN_IDENTITY: "-"
+    CODE_SIGNING_ALLOWED: "NO"
+    IPHONEOS_DEPLOYMENT_TARGET: "15.0"
+targets:
+  TrollMask:
+    type: application
+    platform: iOS
+    sources:
+      - path: TrollMaskApp
+        excludes:
+          - "Info.plist"
+          - "*.md"
+    info:
+      path: TrollMaskApp/Info.plist
+    entitlements:
+      path: entitlements.plist
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.trollmask.app
+        PRODUCT_NAME: TrollMask
+        INFOPLIST_FILE: TrollMaskApp/Info.plist
+        SWIFT_OBJC_BRIDGING_HEADER: TrollMaskApp/TrollMask-Bridging-Header.h
+        CODE_SIGN_ENTITLEMENTS: entitlements.plist
+        OTHER_LDFLAGS: "$(inherited) -framework UIKit -framework SwiftUI -framework CoreLocation -framework Foundation"
+        LD_RUNPATH_SEARCH_PATHS: "$(inherited) @executable_path/Frameworks @executable_path"

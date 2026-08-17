@@ -29,7 +29,7 @@ struct ContentView: View {
     }
 
     var body: some View {
-        NavigationStack {
+        NavigationView {
             List(selection: $selectedApp) {
                 Section("选择目标 App（仅对该 App 生效）") {
                     ForEach(filteredApps) { app in

@@ -25,7 +25,11 @@ jobs:
       - name: Install Homebrew build deps
         # theos 打包需要 ldid(伪签) / dpkg(打 deb)
         run: |
-          brew install make ldid dpkg fakeroot 2>/dev/null || brew install make ldid dpkg fakeroot || true
+          brew update || true
+          brew install make ldid dpkg fakeroot
+          echo "ldid -> $(command -v ldid)"
+          echo "dpkg -> $(command -v dpkg)"
+          echo "swift -> $(command -v swift)"
 
       - name: Set up Theos + iOS SDK 16.5 (manual)
         run: |

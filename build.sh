@@ -19,11 +19,14 @@ make clean || true
 make
 cd ..
 
-DYLIB_SRC="TrollMaskDylib/.theos/obj/TrollMaskDylib.dylib"
-if [ ! -f "$DYLIB_SRC" ]; then
-  echo "!!! 找不到编译产物: $DYLIB_SRC"
+# Theos 把 dylib 输出到 .theos/obj 下，路径因版本可能略有差异，用 find 兜底定位
+DYLIB_SRC=$(find TrollMaskDylib/.theos -type f -name 'TrollMaskDylib.dylib' 2>/dev/null | head -1)
+if [ -z "$DYLIB_SRC" ]; then
+  echo "!!! 找不到 TrollMaskDylib.dylib，.theos 实际产物如下："
+  find TrollMaskDylib/.theos -type f 2>/dev/null | head -50
   exit 1
 fi
+echo "==> 找到 dylib: $DYLIB_SRC"
 
 echo "==> [2/3] 拷贝 dylib 到 layout（随主 App 打包）"
 mkdir -p layout/Applications/TrollMask.app
@@ -36,3 +39,4 @@ make clean || true
 make package FINALPACKAGE=1
 
 echo "==> 完成。deb 位于 ./packages/ 或 .theos/ 目录，用 TrollStore / Sileo / Filza 安装主 App 即可。"
+ls -lh packages/*.deb .theos/*.deb 2>/dev/null || true

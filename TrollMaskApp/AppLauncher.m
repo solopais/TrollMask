@@ -8,6 +8,7 @@
 #import <sys/param.h>
 #import <signal.h>
 #import <dlfcn.h>
+#import <sys/stat.h>
 
 @implementation AppLauncher
 

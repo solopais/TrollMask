@@ -37,12 +37,25 @@ rm -f layout/Applications/TrollMask.app/PLACEHOLDER.txt
 echo "==> [3/3] 构建主 App 并打包 deb"
 # GitHub macOS runner 上 Homebrew 的 fakeroot 是 arm64、runner 进程需 arm64e，会崩溃；
 # 也不能把 FAKEROOT= 设空（会破坏 Theos 的 `$(FAKEROOT) bash -c ...` 命令结构）。
-# 这里放一个 fakeroot 替身到 PATH 最前：它只 exec 原命令、不伪造 root 属主。
+# 这里放一个 fakeroot 替身到 PATH 最前：吃掉 fakeroot 自己的 -i/-s 等参数，
+# 只 exec 后面的真正命令（bash -c "dpkg-deb ..."），不伪造 root 属主。
 # TrollStore 安装 .deb 不依赖包内文件属主，故完全可行。
 mkdir -p /tmp/fakebin
 cat > /tmp/fakebin/fakeroot <<'SH'
 #!/bin/bash
-exec "$@"
+# fakeroot passthrough shim (CI only): drop fakeroot's own flags, run the real command.
+args=("$@")
+i=0
+n=${#args[@]}
+while [ "$i" -lt "$n" ]; do
+  case "${args[$i]}" in
+    -i|-s|-l|-f|-p|-P|-c) i=$((i+2)) ;;   # flags taking an argument
+    -u|-S|-e|--help|-v|-V) i=$((i+1)) ;;  # flags without argument
+    --) i=$((i+1)); break ;;
+    *) break ;;
+  esac
+done
+exec "${args[@]:$i}"
 SH
 chmod +x /tmp/fakebin/fakeroot
 export PATH="/tmp/fakebin:$PATH"

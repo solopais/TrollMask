@@ -35,8 +35,10 @@ chmod 755 layout/Applications/TrollMask.app/TrollMaskDylib.dylib
 rm -f layout/Applications/TrollMask.app/PLACEHOLDER.txt
 
 echo "==> [3/3] 构建主 App 并打包 deb"
+# FAKEROOT= 跳过 fakeroot：GitHub macOS runner 上 Homebrew 的 fakeroot 是 arm64、
+# 而 runner 进程需 arm64e，会崩溃；TrollStore 安装 .deb 不依赖包内文件属主，故可安全跳过
 make clean || true
-make package FINALPACKAGE=1
+make package FINALPACKAGE=1 FAKEROOT=
 
 echo "==> 完成。deb 位于 ./packages/ 或 .theos/ 目录，用 TrollStore / Sileo / Filza 安装主 App 即可。"
 ls -lh packages/*.deb .theos/*.deb 2>/dev/null || true

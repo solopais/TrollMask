@@ -23,10 +23,12 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Install Homebrew build deps
-        # theos 打包需要 ldid(伪签) / dpkg(打 deb)
+        # theos 打包需要 ldid(伪签) / dpkg(打 deb)。
+        # 注意：不装 fakeroot —— GitHub macOS runner 上 Homebrew 的 fakeroot 是 arm64、
+        # 而 runner 进程需 arm64e 会崩溃；build.sh 已用 FAKEROOT= 跳过它，TrollStore 安装不依赖包内属主。
         run: |
           brew update || true
-          brew install make ldid dpkg fakeroot
+          brew install make ldid dpkg
           echo "ldid -> $(command -v ldid)"
           echo "dpkg -> $(command -v dpkg)"
           echo "swift -> $(command -v swift)"

@@ -1,5 +1,5 @@
 # TrollMaskDylib — 编译为 dylib，由主 App 在运行时复制到 /var/tmp 并注入目标进程
-TARGET := iphone:clang:16.0
+TARGET := iphone:clang:16.5
 ARCHS := arm64
 INSTALL_TARGET_PROCESSES =
 

@@ -11,3 +11,6 @@ packages/
 # Xcode / macOS
 .DS_Store
 *.swp
+
+# 传输用 git bundle（不进仓库）
+*.bundle

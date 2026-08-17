@@ -1,0 +1,48 @@
+name: Build TrollMask (deb)
+
+# 自动构建：push / PR / 手动触发后，在 macOS runner 上用 Theos 编译
+# 注入 dylib + 主 App，并打包成 deb 作为 Artifact 产出。
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build .deb on macOS
+    runs-on: macos-15
+    env:
+      THEOS: ${{ github.workspace }}/theos
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Homebrew build deps
+        # theos 打包需要 ldid(伪签) / dpkg(打 deb) / fakeroot 等
+        run: |
+          brew install make ldid dpkg fakeroot coreutils 2>/dev/null || true
+
+      - name: Set up Theos + iOS SDK 16.5
+        uses: guillaumealgis/setup-theos@v1
+        with:
+          theos-src: 'https://github.com/theos/theos'
+          theos-branch: 'master'
+          include-sdk: true
+          sdk-version: '16.5'
+
+      - name: Build dylib + app and package .deb
+        run: |
+          chmod +x build.sh
+          ./build.sh
+
+      - name: Upload .deb artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: TrollMask-deb
+          path: |
+            packages/*.deb
+          if-no-files-found: error

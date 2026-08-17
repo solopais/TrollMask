@@ -103,3 +103,45 @@ chmod +x build.sh
 
 本工具仅供 **你本人拥有的设备** 做以下用途：**隐私保护、App 测试、定位功能调试**。
 请勿用于突破任何服务的使用条款、刷量、作弊或任何违法用途。使用者需自行承担一切后果。
+
+---
+
+## GitHub Actions 自动构建（推荐）
+
+仓库已内置 `.github/workflows/build.yml`：每次 `push` 到 `main`/`master`、开 PR、或手动触发，
+都会在 macOS runner 上自动装好 Theos + iOS 16.5 SDK，跑 `build.sh`，并把打好的 `.deb`
+作为 **Artifacts** 产出——你不用自己装编译环境。
+
+### 推到 GitHub 后自动出包
+
+在**已登录 `gh` 的机器**（Mac 或本机均可）执行：
+
+```bash
+# 进入工程（若是从 bundle 还原的，先 git clone TrollMask.bundle TrollMask）
+cd TrollMask
+
+# 首次：在 GitHub 建公开仓库并推送
+gh repo create TrollMask --public --source=. --remote=origin --push
+# 若仓库已存在，手动加远端再推：
+#   git remote add origin git@github.com:<你的用户名>/TrollMask.git
+#   git branch -M main
+#   git push -u origin main
+
+# push 之后去 GitHub 仓库 → Actions 标签页，等 "Build TrollMask (deb)" 跑完，
+# 进该次 run → 右侧 Artifacts 下载 TrollMask-deb（里面是 .deb）。
+# 用 TrollStore 装上即可。
+```
+
+> 想每次发 tag 自动出 **Release**（而不只是 Artifact），可把 workflow 末尾的
+> `upload-artifact` 换成 `softprops/action-gh-release`，在 `on:` 里加 `tags: ['v*']` 即可。
+
+### 本地手动构建（仍可用）
+
+```bash
+cd TrollMask
+chmod +x build.sh
+./build.sh
+```
+
+> 若 CI 首次报 SDK 版本不匹配：把 `build.yml` 里的 `sdk-version` 与本仓库两个 `Makefile`
+> 的 `TARGET := iphone:clang:<版本>` 改成同一个存在的 iOS SDK 版本（如 `16.5`）即可。

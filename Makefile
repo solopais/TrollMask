@@ -1,6 +1,6 @@
 # TrollMask — TrollStore 主 App（SwiftUI）
 # 注：本 Makefile 只构建主 App；dylib 由 build.sh 先单独构建并放入 layout。
-TARGET := iphone:clang:16.0
+TARGET := iphone:clang:16.5
 ARCHS := arm64
 SWIFT_VERSION := 5.0
 INSTALL_TARGET_PROCESSES =

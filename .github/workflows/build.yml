@@ -1,7 +1,8 @@
 name: Build TrollMask (deb)
 
-# 自动构建：push / PR / 手动触发后，在 macOS runner 上用 Theos 编译
-# 注入 dylib + 主 App，并打包成 deb 作为 Artifact 产出。
+# 自动构建：push / PR / 手动触发后，在 macOS runner 上手动安装 Theos + iOS 16.5 SDK，
+# 编译注入 dylib 与主 App，并打包成 deb 作为 Artifact 产出。
+# （不依赖第三方 setup-theos action，避免仓库失效导致流水线整体失败。）
 on:
   push:
     branches: [ "main", "master" ]
@@ -22,17 +23,23 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Install Homebrew build deps
-        # theos 打包需要 ldid(伪签) / dpkg(打 deb) / fakeroot 等
+        # theos 打包需要 ldid(伪签) / dpkg(打 deb)
         run: |
-          brew install make ldid dpkg fakeroot coreutils 2>/dev/null || true
+          brew install make ldid dpkg fakeroot 2>/dev/null || brew install make ldid dpkg fakeroot || true
 
-      - name: Set up Theos + iOS SDK 16.5
-        uses: guillaumealgis/setup-theos@v1
-        with:
-          theos-src: 'https://github.com/theos/theos'
-          theos-branch: 'master'
-          include-sdk: true
-          sdk-version: '16.5'
+      - name: Set up Theos + iOS SDK 16.5 (manual)
+        run: |
+          set -e
+          echo "==> 克隆 theos"
+          git clone --recursive https://github.com/theos/theos "$THEOS"
+          echo "==> 下载 theos/sdks"
+          curl -fsSL https://github.com/theos/sdks/archive/master.zip -o /tmp/sdks.zip
+          rm -rf /tmp/sdks_extract && mkdir -p /tmp/sdks_extract
+          unzip -q -o /tmp/sdks.zip -d /tmp/sdks_extract
+          mkdir -p "$THEOS/sdks"
+          mv /tmp/sdks_extract/sdks-master/*.sdk "$THEOS/sdks/"
+          echo "==> 可用 SDK:"
+          ls "$THEOS/sdks"
 
       - name: Build dylib + app and package .deb
         run: |
@@ -45,4 +52,5 @@ jobs:
           name: TrollMask-deb
           path: |
             packages/*.deb
+            .theos/*.deb
           if-no-files-found: error

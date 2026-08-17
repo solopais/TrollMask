@@ -3,7 +3,7 @@
 name: TrollMask
 options:
   deploymentTarget:
-    iOS: "15.0"
+    iOS: "16.0"
   createIntermediateGroups: true
   bundleIdPrefix: com.trollmask
 settings:
@@ -15,7 +15,7 @@ settings:
     ENABLE_BITCODE: "NO"
     CODE_SIGN_IDENTITY: "-"
     CODE_SIGNING_ALLOWED: "NO"
-    IPHONEOS_DEPLOYMENT_TARGET: "15.0"
+    IPHONEOS_DEPLOYMENT_TARGET: "16.0"
 targets:
   TrollMask:
     type: application

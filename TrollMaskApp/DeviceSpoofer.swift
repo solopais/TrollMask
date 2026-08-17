@@ -51,10 +51,12 @@ enum DeviceSpoofer {
     /// 枚举已安装的用户 App（含系统 App 由 includeSystem 控制）
     static func installedApps(includeSystem: Bool = false) -> [InstalledApp] {
         guard
-            let wsClass = NSClassFromString("LSApplicationWorkspace") as? NSObject.Type,
-            let defaultSel = NSSelectorFromString("defaultWorkspace"),
-            let workspace = wsClass.perform(defaultSel).takeUnretainedValue() as? NSObject,
-            let allSel = NSSelectorFromString("allApplications")
+            let wsClass = NSClassFromString("LSApplicationWorkspace") as? NSObject.Type
+        else { return [] }
+        let defaultSel = NSSelectorFromString("defaultWorkspace")
+        let allSel = NSSelectorFromString("allApplications")
+        guard
+            let workspace = wsClass.perform(defaultSel).takeUnretainedValue() as? NSObject
         else { return [] }
 
         guard let apps = workspace.perform(allSel).takeUnretainedValue() as? [NSObject] else { return [] }
@@ -108,8 +110,8 @@ enum DeviceSpoofer {
         guard writeConfig(config) else {
             return (false, "无法写入配置文件 \(configPath)")
         }
-        AppLauncher.killAppWithExecName(app.execName)
-        let ok = AppLauncher.launchAppAtExecPath(app.execPath, dylibPath: dylibDest, configPath: configPath)
+        AppLauncher.killApp(withExecName: app.execName)
+        let ok = AppLauncher.launchApp(atExecPath: app.execPath, dylibPath: dylibDest, configPath: configPath)
         return ok
             ? (true, "已注入并启动：\(app.name)")
             : (false, "启动失败，可能目标 App 不支持 DYLD 注入（需 TrollStore 环境）")

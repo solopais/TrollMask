@@ -44,7 +44,7 @@ xcodebuild \
   -destination 'generic/platform=iOS' \
   ARCHS=arm64 ONLY_ACTIVE_ARCH=NO \
   CODE_SIGN_IDENTITY="-" CODE_SIGNING_ALLOWED=NO \
-  IPHONEOS_DEPLOYMENT_TARGET=15.0 \
+  IPHONEOS_DEPLOYMENT_TARGET=16.0 \
   build 2>&1 | tee /tmp/xcodebuild.log | tail -20
 
 APP=$(find ~/Library/Developer/Xcode/DerivedData/TrollMask-*/Build/Products/Release-iphoneos/TrollMask.app -maxdepth 0 2>/dev/null | head -1)

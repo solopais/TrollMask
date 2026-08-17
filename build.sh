@@ -49,7 +49,10 @@ echo "==> fakeroot 替身: $(command -v fakeroot)"
 
 echo "==> [2/4] 先显式编译主 App（make），禁止提前在 layout 建 .app"
 make clean || true
-make
+echo "--- [诊断] make messages=yes 输出 ---"
+make messages=yes 2>&1 | sed 's/\x1b\[[0-9;]*m//g' | tail -50 || true
+echo "--- [诊断] 显式 make TrollMask ---"
+make TrollMask 2>&1 | sed 's/\x1b\[[0-9;]*m//g' | tail -50 || true
 APP_BUILD=$(find .theos -type d -name 'TrollMask.app' 2>/dev/null | head -1)
 if [ -z "$APP_BUILD" ] || [ ! -f "$APP_BUILD/TrollMask" ]; then
   echo "!!! 主 App 未编译成功，.theos 内容如下："

@@ -35,19 +35,20 @@ jobs:
           echo "swift -> $(command -v swift)"
           xcodebuild -version
 
-      - name: Set up Theos + iOS SDK 16.5 (manual, 仅用于编译 dylib)
+      - name: Set up Theos + iOS SDK (use runner's Xcode SDK, 避免 theos/sdks 被限流 429)
         run: |
           set -e
           echo "==> 克隆 theos"
           git clone --recursive https://github.com/theos/theos "$THEOS"
-          echo "==> 下载 theos/sdks"
-          curl -fsSL https://github.com/theos/sdks/archive/master.zip -o /tmp/sdks.zip
-          rm -rf /tmp/sdks_extract && mkdir -p /tmp/sdks_extract
-          unzip -q -o /tmp/sdks.zip -d /tmp/sdks_extract
+          echo "==> 复用 runner 自带的 Xcode iPhoneOS SDK（runner 已装完整 Xcode + iPhoneOS SDK）"
+          XCODE_SDK=$(xcrun --sdk iphoneos --show-sdk-path)
+          echo "    Xcode SDK: $XCODE_SDK"
           mkdir -p "$THEOS/sdks"
-          mv /tmp/sdks_extract/sdks-master/*.sdk "$THEOS/sdks/"
+          # Theos 按目录名匹配 SDK 版本；dylib 的 TARGET 为 iphone:clang:16.5，
+          # 故把 Xcode 的 iPhoneOS SDK 软链成 iPhoneOS16.5.sdk 以匹配，无需联网下载 theos/sdks。
+          ln -sfn "$XCODE_SDK" "$THEOS/sdks/iPhoneOS16.5.sdk"
           echo "==> 可用 SDK:"
-          ls "$THEOS/sdks"
+          ls -la "$THEOS/sdks"
 
       - name: Build dylib (Theos) + App (xcodebuild) -> IPA
         run: |

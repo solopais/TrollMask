@@ -35,10 +35,21 @@ chmod 755 layout/Applications/TrollMask.app/TrollMaskDylib.dylib
 rm -f layout/Applications/TrollMask.app/PLACEHOLDER.txt
 
 echo "==> [3/3] 构建主 App 并打包 deb"
-# FAKEROOT= 跳过 fakeroot：GitHub macOS runner 上 Homebrew 的 fakeroot 是 arm64、
-# 而 runner 进程需 arm64e，会崩溃；TrollStore 安装 .deb 不依赖包内文件属主，故可安全跳过
+# GitHub macOS runner 上 Homebrew 的 fakeroot 是 arm64、runner 进程需 arm64e，会崩溃；
+# 也不能把 FAKEROOT= 设空（会破坏 Theos 的 `$(FAKEROOT) bash -c ...` 命令结构）。
+# 这里放一个 fakeroot 替身到 PATH 最前：它只 exec 原命令、不伪造 root 属主。
+# TrollStore 安装 .deb 不依赖包内文件属主，故完全可行。
+mkdir -p /tmp/fakebin
+cat > /tmp/fakebin/fakeroot <<'SH'
+#!/bin/bash
+exec "$@"
+SH
+chmod +x /tmp/fakebin/fakeroot
+export PATH="/tmp/fakebin:$PATH"
+echo "==> fakeroot 替身: $(command -v fakeroot)"
+
 make clean || true
-make package FINALPACKAGE=1 FAKEROOT=
+make package FINALPACKAGE=1
 
 echo "==> 完成。deb 位于 ./packages/ 或 .theos/ 目录，用 TrollStore / Sileo / Filza 安装主 App 即可。"
 ls -lh packages/*.deb .theos/*.deb 2>/dev/null || true
